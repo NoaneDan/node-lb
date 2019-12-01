@@ -31,6 +31,15 @@
     <Content Include="app.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="src\Server.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\ServerPool.js">
+      <SubType>Code</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
 </Project>
