@@ -1,0 +1,9 @@
+{
+  "name": "node-lb",
+  "version": "0.0.0",
+  "description": "node-lb",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  }
+}
