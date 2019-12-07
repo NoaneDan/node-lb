@@ -1,6 +1,7 @@
 'use strict';
 
 const http = require('http');
+const net = require('net');
 const Server = require('./src/Server');
 const ServerPool = require('./src/ServerPool');
 
@@ -22,6 +23,11 @@ server.on('request', (req, res) => {
     const headers = req.headers;
 
     const server = serverPool.getServer();
+    if (!server) {
+        res.statusCode = 500;
+        res.end();
+        return;
+    }
 
     const options = {
         host: server.host,
@@ -36,12 +42,32 @@ server.on('request', (req, res) => {
 
 server.listen(5000, () => {
     console.log('[*] load balancer started');
+
+    setInterval(() => {
+        for (const server of serverPool.pool) {
+            const conn = net.createConnection(server.port, server.host, () => {
+                if (!server.alive) {
+                    console.log(`[+] ${server.host}:${server.port} came online`)
+                    server.alive = true;
+                }
+            });
+
+            conn.on('error', () => {
+                if (server.alive) {
+                    console.log(`[-] lost connection to ${server.host}:${server.port}`)
+                    server.alive = false;
+                }
+            });
+            conn.end();
+        }
+    }, 2000);
 });
 
 function proxyRequest(originReq, originRes, options, server, retryCount = 0) {
-    if (retryCount >= 5) {
+    if (retryCount >= 3) {
         server.alive = false;
-        originRes.end(500);
+        originRes.statusCode = 500;
+        originRes.end();
         return;
     }
 
